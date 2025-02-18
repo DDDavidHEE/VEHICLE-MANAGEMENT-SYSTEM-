@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vehicle Management</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body.nightlight-mode {
+      background-color: #333;
+      color: white;
+    }
+    .nightlight-slider {
+      width: 100%;
+    }
+    .nightlight-slider input[type="range"] {
+      width: 100%;
+      height: 10px;
+      background: linear-gradient(to right, #ffb3b3, #ffcc99, #ffff66, #99ff99, #66ccff, #ff66cc);
+    }
+    #vehicleForm {
+      display: none;
+      margin-top: 20px;
+    }
+    .nightlight-toggle {
+      cursor: pointer;
+      padding: 10px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+    #searchBtn {
+      margin-left: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="d-flex justify-content-between my-3">
+      <button id="changeLanguageBtn" class="btn btn-primary">Change Language</button>
+      <button id="nightlightToggle" class="nightlight-toggle">Toggle Nightlight</button>
+    </div>
+
+    <!-- Thanh tìm kiếm -->
+    <div class="mb-3 d-flex">
+      <input type="text" id="searchInput" class="form-control" placeholder="Search vehicle..." onkeyup="searchVehicle()">
+      <button id="searchBtn" class="btn btn-info">Search</button>
+    </div>
+
+    <button id="addNewVehicleBtn" class="btn btn-success">Add New Vehicle</button>
+
+    <table class="table table-striped mt-3">
+      <thead>
+        <tr>
+          <th id="licensePlateHeader">License Plate</th>
+          <th id="vehicleTypeHeader">Vehicle Type</th>
+          <th id="brandHeader">Brand</th>
+          <th id="ownerHeader">Owner</th>
+          <th id="phoneHeader">Phone</th>
+          <th id="registrationDateHeader">Registration Date</th>
+          <th id="actionsHeader">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="vehicleList"></tbody>
+    </table>
+
+    <!-- Vehicle Form -->
+    <div id="vehicleForm">
+      <h3 id="formTitle">Add New Vehicle</h3>
+      <form id="vehicleFormData">
+        <div class="mb-3">
+          <label for="licensePlate" class="form-label">License Plate</label>
+          <input type="text" class="form-control" id="licensePlate" required>
+        </div>
+        <div class="mb-3">
+          <label for="vehicleType" class="form-label">Vehicle Type</label>
+          <input type="text" class="form-control" id="vehicleType" required>
+        </div>
+        <div class="mb-3">
+          <label for="brand" class="form-label">Brand</label>
+          <input type="text" class="form-control" id="brand" required>
+        </div>
+        <div class="mb-3">
+          <label for="owner" class="form-label">Owner</label>
+          <input type="text" class="form-control" id="owner" required>
+        </div>
+        <div class="mb-3">
+          <label for="phone" class="form-label">Phone</label>
+          <input type="text" class="form-control" id="phone" required>
+        </div>
+        <div class="mb-3">
+          <label for="registrationDate" class="form-label">Registration Date</label>
+          <input type="date" class="form-control" id="registrationDate" required>
+        </div>
+        <button type="submit" class="btn btn-primary" id="saveBtn">Save</button>
+        <button type="button" class="btn btn-secondary" id="backBtn">Back</button>
+      </form>
+    </div>
+
+    <!-- Nightlight Slider -->
+    <div id="nightlightSliderContainer" style="display: none;">
+      <div class="nightlight-slider">
+        <input type="range" id="nightlightSlider" min="0" max="100" value="50">
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const nightlightToggle = document.getElementById('nightlightToggle');
+    const vehicleForm = document.getElementById('vehicleForm');
+    const vehicleList = document.getElementById('vehicleList');
+    const backBtn = document.getElementById('backBtn');
+    const saveBtn = document.getElementById('saveBtn');
+    const licensePlateInput = document.getElementById('licensePlate');
+    const vehicleTypeInput = document.getElementById('vehicleType');
+    const brandInput = document.getElementById('brand');
+    const ownerInput = document.getElementById('owner');
+    const phoneInput = document.getElementById('phone');
+    const registrationDateInput = document.getElementById('registrationDate');
+    const nightlightSliderContainer = document.getElementById('nightlightSliderContainer');
+    const nightlightSlider = document.getElementById('nightlightSlider');
+    const searchInput = document.getElementById('searchInput');
+    const changeLanguageBtn = document.getElementById('changeLanguageBtn');
+    const addNewVehicleBtn = document.getElementById('addNewVehicleBtn');
+    const searchBtn = document.getElementById('searchBtn');
+
+    let vehicles = [];
+    let editingVehicle = null;
+    let isEnglish = true;
+
+    // Cập nhật danh sách phương tiện
+    function updateVehicleList() {
+      vehicleList.innerHTML = '';
+      vehicles.forEach((vehicle, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${vehicle.license_plate}</td>
+          <td>${vehicle.vehicle_type}</td>
+          <td>${vehicle.brand}</td>
+          <td>${vehicle.owner}</td>
+          <td>${vehicle.phone}</td>
+          <td>${vehicle.registration_date}</td>
+          <td>
+            <button class="btn btn-warning btn-sm" onclick="editVehicle(${index})">Edit</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteVehicle(${index})">Delete</button>
+          </td>
+        `;
+        vehicleList.appendChild(row);
+      });
+    }
+
+    // Thêm phương tiện mới
+    function addVehicle(event) {
+      event.preventDefault();
+      const vehicle = {
+        license_plate: licensePlateInput.value,
+        vehicle_type: vehicleTypeInput.value,
+        brand: brandInput.value,
+        owner: ownerInput.value,
+        phone: phoneInput.value,
+        registration_date: registrationDateInput.value,
+      };
+      if (editingVehicle !== null) {
+        vehicles[editingVehicle] = vehicle;
+        editingVehicle = null;
+      } else {
+        vehicles.push(vehicle);
+      }
+      vehicleForm.style.display = 'none';
+      updateVehicleList();
+    }
+
+    // Chỉnh sửa phương tiện
+    function editVehicle(index) {
+      const vehicle = vehicles[index];
+      licensePlateInput.value = vehicle.license_plate;
+      vehicleTypeInput.value = vehicle.vehicle_type;
+      brandInput.value = vehicle.brand;
+      ownerInput.value = vehicle.owner;
+      phoneInput.value = vehicle.phone;
+      registrationDateInput.value = vehicle.registration_date;
+      vehicleForm.style.display = 'block';
+      document.getElementById('formTitle').textContent = isEnglish ? 'Edit Vehicle' : 'Chỉnh Sửa Phương Tiện';
+      editingVehicle = index;
+    }
+
+    // Xóa phương tiện
+    function deleteVehicle(index) {
+      vehicles.splice(index, 1);
+      updateVehicleList();
+    }
+
+    // Tìm kiếm phương tiện
+    function searchVehicle() {
+      const searchTerm = searchInput.value.toLowerCase();
+      const filteredVehicles = vehicles.filter(vehicle =>
+        vehicle.license_plate.toLowerCase().includes(searchTerm) ||
+        vehicle.vehicle_type.toLowerCase().includes(searchTerm) ||
+        vehicle.brand.toLowerCase().includes(searchTerm) ||
+        vehicle.owner.toLowerCase().includes(searchTerm)
+      );
+      displayFilteredVehicles(filteredVehicles);
+    }
+
+    function displayFilteredVehicles(filteredVehicles) {
+      vehicleList.innerHTML = '';
+      filteredVehicles.forEach((vehicle, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${vehicle.license_plate}</td>
+          <td>${vehicle.vehicle_type}</td>
+          <td>${vehicle.brand}</td>
+          <td>${vehicle.owner}</td>
+          <td>${vehicle.phone}</td>
+          <td>${vehicle.registration_date}</td>
+          <td>
+            <button class="btn btn-warning btn-sm" onclick="editVehicle(${index})">Edit</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteVehicle(${index})">Delete</button>
+          </td>
+        `;
+        vehicleList.appendChild(row);
+      });
+    }
+
+    // Đổi chế độ nightlight
+    function toggleNightlight() {
+      nightlightSliderContainer.style.display = nightlightSliderContainer.style.display === 'none' ? 'block' : 'none';
+      document.body.classList.toggle('nightlight-mode');
+    }
+
+    // Chuyển ngôn ngữ
+    function toggleLanguage() {
+      isEnglish = !isEnglish;
+      updateLabels();
+    }
+
+    function updateLabels() {
+      if (isEnglish) {
+        document.getElementById('licensePlateHeader').textContent = 'License Plate';
+        document.getElementById('vehicleTypeHeader').textContent = 'Vehicle Type';
+        document.getElementById('brandHeader').textContent = 'Brand';
+        document.getElementById('ownerHeader').textContent = 'Owner';
+        document.getElementById('phoneHeader').textContent = 'Phone';
+        document.getElementById('registrationDateHeader').textContent = 'Registration Date';
+        document.getElementById('actionsHeader').textContent = 'Actions';
+        document.getElementById('formTitle').textContent = 'Add New Vehicle';
+        addNewVehicleBtn.textContent = 'Add New Vehicle';
+        searchBtn.textContent = 'Search';
+        saveBtn.textContent = 'Save';
+        backBtn.textContent = 'Back';
+      } else {
+        document.getElementById('licensePlateHeader').textContent = 'Biển Số';
+        document.getElementById('vehicleTypeHeader').textContent = 'Loại Phương Tiện';
+        document.getElementById('brandHeader').textContent = 'Hãng';
+        document.getElementById('ownerHeader').textContent = 'Chủ';
+        document.getElementById('phoneHeader').textContent = 'Số Điện Thoại';
+        document.getElementById('registrationDateHeader').textContent = 'Ngày Đăng Ký';
+        document.getElementById('actionsHeader').textContent = 'Hành Động';
+        document.getElementById('formTitle').textContent = 'Thêm Phương Tiện Mới';
+        addNewVehicleBtn.textContent = 'Thêm Phương Tiện Mới';
+        searchBtn.textContent = 'Tìm Kiếm';
+        saveBtn.textContent = 'Lưu';
+        backBtn.textContent = 'Quay Lại';
+      }
+    }
+
+    // Xử lý sự kiện cho các nút
+    nightlightToggle.addEventListener('click', toggleNightlight);
+    changeLanguageBtn.addEventListener('click', toggleLanguage);
+    addNewVehicleBtn.addEventListener('click', () => {
+      vehicleForm.style.display = 'block';
+      document.getElementById('formTitle').textContent = isEnglish ? 'Add New Vehicle' : 'Thêm Phương Tiện Mới';
+    });
+    backBtn.addEventListener('click', () => {
+      vehicleForm.style.display = 'none';
+    });
+    document.getElementById('vehicleFormData').addEventListener('submit', addVehicle);
+
+    // Cập nhật giao diện ban đầu
+    updateLabels();
+  </script>
+</body>
+</html>

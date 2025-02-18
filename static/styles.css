@@ -1,0 +1,81 @@
+/* Kiểu nền mặc định */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+  }
+  
+  /* Thanh navbar */
+  #navbar {
+    margin-bottom: 20px;
+  }
+  
+  /* Ẩn/hiện container thanh trượt Nightlight */
+  #nightlightSliderContainer {
+    display: none;
+    margin-top: 10px;
+  }
+  
+  /* Tùy chỉnh thanh trượt ấm hơn */
+  #nightlightSlider {
+    width: 180px; /* Nhỏ hơn, vừa đủ rộng hơn nút Nightlight */
+    margin-top: 5px;
+  }
+  
+  /* Bảng thông tin */
+  table {
+    background-color: white;
+  }
+  table th,
+  table td {
+    text-align: center;
+    vertical-align: middle;
+  }
+  
+  /* Form ẩn mặc định */
+  #vehicleForm {
+    display: none;
+  }
+  
+  /* Nút thêm phương tiện đặt cố định dưới góc trái */
+  #addNewVehicleBtn {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+  }
+  
+  /* Ẩn nút Back mặc định */
+  #backBtn {
+    display: none;
+  }
+  
+  /* Định dạng chung cho input, button */
+  input,
+  button {
+    height: 40px;
+    border-radius: 5px;
+    padding: 10px;
+    outline: none;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    margin-bottom: 5px;
+    font-size: 14px;
+    transition: all 0.2s ease-in-out;
+  }
+  input:focus {
+    border-color: #007bff;
+  }
+  button {
+    cursor: pointer;
+  }
+  
+  /* Tạo khoảng trống cho container chính */
+  .container {
+    max-width: 1200px;
+  }
+  
+  /* Thu nhỏ padding/margin form */
+  #vehicleFormContent .mb-3 {
+    margin-bottom: 10px !important;
+  }
+  

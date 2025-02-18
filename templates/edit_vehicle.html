@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sửa Phương Tiện</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 900px;
+            margin-top: 50px;
+        }
+        .btn-warning {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mb-4">Sửa Phương Tiện</h1>
+        <form method="POST">
+            <div class="mb-3">
+                <label class="form-label">Biển Số</label>
+                <input type="text" class="form-control" name="license_plate" value="{{ vehicle[1] }}" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Loại Xe</label>
+                <input type="text" class="form-control" name="vehicle_type" value="{{ vehicle[2] }}" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Hãng Xe</label>
+                <input type="text" class="form-control" name="brand" value="{{ vehicle[3] }}" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Chủ Sở Hữu</label>
+                <input type="text" class="form-control" name="owner" value="{{ vehicle[4] }}" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Ngày Đăng Ký</label>
+                <input type="date" class="form-control" name="registration_date" value="{{ vehicle[5] }}" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Số Điện Thoại</label>
+                <input type="text" class="form-control" name="phone" value="{{ vehicle[6] }}" required>
+            </div>
+            <div class="text-center">
+                <button type="submit" class="btn btn-warning">Cập Nhật Thông Tin</button>
+                <a href="/" class="btn btn-secondary">Quay Lại</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
